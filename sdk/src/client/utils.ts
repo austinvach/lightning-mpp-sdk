@@ -11,8 +11,25 @@ export { NETWORK_MAP }
  * is passed in (e.g. from a consuming app's own node_modules).
  */
 export interface WalletLike {
-  payLightningInvoice(params: { invoice: string; maxFeeSats: number; preferSpark: boolean }): Promise<{ paymentPreimage?: string; id?: string }>
+  payLightningInvoice(params: { invoice: string; maxFeeSats: number; preferSpark: boolean }): Promise<{
+    id: string
+    paymentPreimage?: string
+    status?: string
+    userRequest?: {
+      id?: string
+      paymentPreimage?: string
+      status?: string
+    }
+  }>
   getLightningSendRequest(id: string): Promise<{ paymentPreimage?: string; status?: string } | null>
+  getTransfer?(id: string): Promise<{
+    status?: string
+    userRequest?: {
+      id?: string
+      paymentPreimage?: string
+      status?: string
+    }
+  } | undefined>
   createLightningInvoice(params: { amountSats: number; memo: string; expirySeconds: number, includeSparkInvoice: boolean }): Promise<{ invoice: { encodedInvoice: string } }>
   cleanupConnections(): Promise<void>
 }
@@ -32,17 +49,52 @@ export async function resolvePreimage(
     return result.paymentPreimage
   }
 
+  if (result.userRequest?.paymentPreimage) {
+    return result.userRequest.paymentPreimage
+  }
+
   if (!result.id) {
     throw new Error('Unexpected payLightningInvoice result format')
   }
 
   const FAILURE_STATUSES = new Set(['LIGHTNING_PAYMENT_FAILED', 'TRANSFER_FAILED', 'FAILED'])
+  const isFailureStatus = (status: string): boolean => {
+    const normalized = status.toUpperCase()
+    return FAILURE_STATUSES.has(normalized)
+      || normalized.includes('FAILED')
+      || normalized.includes('EXPIRED')
+      || normalized.includes('RETURNED')
+  }
+
+  const hasTransferHints = typeof result.userRequest !== 'undefined'
+  const pollMode: 'lightning' | 'spark' = wallet.getTransfer && hasTransferHints ? 'spark' : 'lightning'
+
   for (let i = 0; i < maxAttempts; i++) {
-    const req = await wallet.getLightningSendRequest(result.id)
-    if (req?.paymentPreimage) return req.paymentPreimage
-    if (req?.status && FAILURE_STATUSES.has(req.status)) {
-      throw new Error(`Lightning payment failed: ${req.status}`)
+    if (pollMode === 'lightning') {
+      const req = await wallet.getLightningSendRequest(result.id)
+      if (req?.paymentPreimage) return req.paymentPreimage
+      if (req?.status && isFailureStatus(req.status)) {
+        throw new Error(`Lightning payment failed: ${req.status}`)
+      }
+    } else {
+      const transfer = await wallet.getTransfer!(result.id)
+      const transferRequest = transfer?.userRequest
+
+      if (transferRequest?.paymentPreimage) return transferRequest.paymentPreimage
+
+      if (transferRequest?.id && transferRequest.id !== result.id) {
+        const nestedReq = await wallet.getLightningSendRequest(transferRequest.id)
+        if (nestedReq?.paymentPreimage) return nestedReq.paymentPreimage
+        if (nestedReq?.status && isFailureStatus(nestedReq.status)) {
+          throw new Error(`Lightning payment failed: ${nestedReq.status}`)
+        }
+      }
+
+      if (transfer?.status && isFailureStatus(transfer.status)) {
+        throw new Error(`Spark transfer failed: ${transfer.status}`)
+      }
     }
+
     await new Promise((resolve) => setTimeout(resolve, intervalMs))
   }
 

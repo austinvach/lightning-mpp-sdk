@@ -96,10 +96,11 @@ const response = await fetch('https://api.example.com/weather')
 
 ### Server - `spark.charge()`
 
-| Parameter  | Type                                     | Required | Default     |
-| ---------- | ---------------------------------------- | -------- | ----------- |
-| `mnemonic` | `string`                                 | Yes      |             |
-| `network`  | `'mainnet'` \| `'regtest'` \| `'signet'` | No       | `'mainnet'` |
+| Parameter             | Type                                     | Required | Default     |
+| --------------------- | ---------------------------------------- | -------- | ----------- |
+| `mnemonic`            | `string`                                 | Yes      |             |
+| `network`             | `'mainnet'` \| `'regtest'` \| `'signet'` | No       | `'mainnet'` |
+| `includeSparkInvoice` | `boolean`                                | No       | `true`      |
 
 ### Server - `mppx.charge()`
 
@@ -111,11 +112,34 @@ const response = await fetch('https://api.example.com/weather')
 
 ### Client - `spark.charge()`
 
-| Parameter    | Type                                     | Required | Default     |
-| ------------ | ---------------------------------------- | -------- | ----------- |
-| `mnemonic`   | `string`                                 | Yes      |             |
-| `network`    | `'mainnet'` \| `'regtest'` \| `'signet'` | No       | `'mainnet'` |
-| `maxFeeSats` | `number`                                 | No       | `100`       |
+| Parameter     | Type                                     | Required | Default     |
+| ------------- | ---------------------------------------- | -------- | ----------- |
+| `mnemonic`    | `string`                                 | Yes      |             |
+| `network`     | `'mainnet'` \| `'regtest'` \| `'signet'` | No       | `'mainnet'` |
+| `maxFeeSats`  | `number`                                 | No       | `100`       |
+| `preferSpark` | `boolean`                                | No       | `true`      |
+
+### Server - `spark.session()`
+
+| Parameter             | Type                                     | Required | Default     |
+| --------------------- | ---------------------------------------- | -------- | ----------- |
+| `mnemonic`            | `string`                                 | Yes      |             |
+| `network`             | `'mainnet'` \| `'regtest'` \| `'signet'` | No       | `'mainnet'` |
+| `store`               | `Store.Store`                            | No       | in-memory   |
+| `depositAmount`       | `number`                                 | No       | `amount * 20` |
+| `unitType`            | `string`                                 | No       |             |
+| `idleTimeout`         | `number`                                 | No       | `300`       |
+| `includeSparkInvoice` | `boolean`                                | No       | `true`      |
+
+### Client - `spark.session()`
+
+| Parameter             | Type                                     | Required | Default     |
+| --------------------- | ---------------------------------------- | -------- | ----------- |
+| `mnemonic`            | `string`                                 | Yes      |             |
+| `network`             | `'mainnet'` \| `'regtest'` \| `'signet'` | No       | `'mainnet'` |
+| `maxFeeSats`          | `number`                                 | No       | `100`       |
+| `preferSpark`         | `boolean`                                | No       | `true`      |
+| `includeSparkInvoice` | `boolean`                                | No       | `true`      |
 
 ## Examples
 

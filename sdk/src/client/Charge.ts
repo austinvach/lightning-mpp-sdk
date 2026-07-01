@@ -28,7 +28,7 @@ import { NETWORK_MAP, WalletLike, resolvePreimage } from './utils.js'
  * ```
  */
 export function charge(parameters: charge.Parameters) {
-  const { maxFeeSats = 100, onProgress } = parameters
+  const { maxFeeSats = 100, onProgress, preferSpark = true } = parameters
 
   // If mnemonic is provided, we own the wallet and lazily initialise it.
   // If a pre-initialized wallet is provided, we use it directly.
@@ -84,7 +84,7 @@ export function charge(parameters: charge.Parameters) {
       onProgress?.({ type: 'challenge', invoice, amountSats: parseInt(amount, 10) })
       onProgress?.({ type: 'paying' })
 
-      const result = await wallet.payLightningInvoice({ invoice, maxFeeSats, preferSpark: true })
+      const result = await wallet.payLightningInvoice({ invoice, maxFeeSats, preferSpark })
       const preimage = await resolvePreimage(wallet, result)
 
       onProgress?.({ type: 'paid', preimage })
@@ -113,6 +113,8 @@ export declare namespace charge {
   type Parameters = {
     network?: 'mainnet' | 'regtest' | 'signet'
     maxFeeSats?: number
+    /** Whether to prefer Spark route when paying Lightning invoices. Defaults to `true`. */
+    preferSpark?: boolean
     /** Called at each step of the payment process. Optional. */
     onProgress?: (event: ProgressEvent) => void
   } & (

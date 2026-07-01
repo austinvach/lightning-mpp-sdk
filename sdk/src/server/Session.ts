@@ -60,6 +60,7 @@ export function session(parameters: session.Parameters) {
     mnemonic,
     network = 'mainnet',
     store = Store.memory(),
+    includeSparkInvoice = true,
     unitType,
     depositAmount: configuredDepositAmount,
     idleTimeout: idleTimeoutSecs = 300,
@@ -240,7 +241,7 @@ export function session(parameters: session.Parameters) {
       const { invoice } = await wallet.createLightningInvoice({
         amountSats: depositSats,
         memo: request.description ?? 'Session deposit',
-        includeSparkInvoice: true,
+        includeSparkInvoice,
       })
 
       return {
@@ -615,6 +616,8 @@ export declare namespace session {
     unitType?: string
     /** Pluggable key-value store for session state. Defaults to in-memory. */
     store?: Store.Store
+    /** Whether to include a Spark invoice alongside BOLT11 invoices. Defaults to `true`. */
+    includeSparkInvoice?: boolean
     /**
      * Idle timeout in seconds. Sessions with no bearer or topUp activity for
      * this duration are automatically closed and the unspent balance refunded

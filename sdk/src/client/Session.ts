@@ -46,7 +46,7 @@ type ActiveSession = {
  * ```
  */
 export function session(parameters: session.Parameters) {
-  const { maxFeeSats = 100, onProgress } = parameters
+  const { maxFeeSats = 100, onProgress, preferSpark = true, includeSparkInvoice = true } = parameters
 
   let walletPromise: Promise<WalletLike> | null = null
   let activeSession: ActiveSession | null = null
@@ -81,7 +81,7 @@ export function session(parameters: session.Parameters) {
         const topUpResult = await wallet.payLightningInvoice({
           invoice: depositInvoice as string,
           maxFeeSats,
-          preferSpark: true,
+          preferSpark,
         })
         const topUpPreimage = await resolvePreimage(wallet, topUpResult)
         onProgress?.({ type: 'topped-up', topUpSats })
@@ -128,13 +128,13 @@ export function session(parameters: session.Parameters) {
         wallet.payLightningInvoice({
           invoice: depositInvoice as string,
           maxFeeSats,
-          preferSpark: true,
+          preferSpark,
         }),
         wallet.createLightningInvoice({
           amountSats: 0,
           memo: 'Session refund',
           expirySeconds: 60 * 60 * 24 * 30, // 30 days
-          includeSparkInvoice: true,
+          includeSparkInvoice,
         }),
       ])
 
@@ -238,6 +238,10 @@ export declare namespace session {
   type Parameters = {
     network?: 'mainnet' | 'regtest' | 'signet'
     maxFeeSats?: number
+    /** Whether to prefer Spark route when paying Lightning invoices. Defaults to `true`. */
+    preferSpark?: boolean
+    /** Whether to include a Spark invoice when creating the return invoice. Defaults to `true`. */
+    includeSparkInvoice?: boolean
     /** Called at each step of the session lifecycle. Optional. */
     onProgress?: (event: ProgressEvent) => void
   } & (

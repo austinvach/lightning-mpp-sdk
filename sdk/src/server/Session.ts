@@ -240,6 +240,7 @@ export function session(parameters: session.Parameters) {
       const { invoice } = await wallet.createLightningInvoice({
         amountSats: depositSats,
         memo: request.description ?? 'Session deposit',
+        includeSparkInvoice: true,
       })
 
       return {

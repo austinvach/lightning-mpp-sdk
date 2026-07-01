@@ -81,6 +81,7 @@ export function session(parameters: session.Parameters) {
         const topUpResult = await wallet.payLightningInvoice({
           invoice: depositInvoice as string,
           maxFeeSats,
+          preferSpark: true,
         })
         const topUpPreimage = await resolvePreimage(wallet, topUpResult)
         onProgress?.({ type: 'topped-up', topUpSats })
@@ -127,11 +128,13 @@ export function session(parameters: session.Parameters) {
         wallet.payLightningInvoice({
           invoice: depositInvoice as string,
           maxFeeSats,
+          preferSpark: true,
         }),
         wallet.createLightningInvoice({
           amountSats: 0,
           memo: 'Session refund',
           expirySeconds: 60 * 60 * 24 * 30, // 30 days
+          includeSparkInvoice: true,
         }),
       ])
 

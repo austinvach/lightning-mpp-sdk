@@ -84,7 +84,7 @@ export function charge(parameters: charge.Parameters) {
       onProgress?.({ type: 'challenge', invoice, amountSats: parseInt(amount, 10) })
       onProgress?.({ type: 'paying' })
 
-      const result = await wallet.payLightningInvoice({ invoice, maxFeeSats })
+      const result = await wallet.payLightningInvoice({ invoice, maxFeeSats, preferSpark: true })
       const preimage = await resolvePreimage(wallet, result)
 
       onProgress?.({ type: 'paid', preimage })

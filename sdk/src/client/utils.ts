@@ -11,9 +11,9 @@ export { NETWORK_MAP }
  * is passed in (e.g. from a consuming app's own node_modules).
  */
 export interface WalletLike {
-  payLightningInvoice(params: { invoice: string; maxFeeSats: number }): Promise<{ paymentPreimage?: string; id?: string }>
+  payLightningInvoice(params: { invoice: string; maxFeeSats: number; preferSpark: boolean }): Promise<{ paymentPreimage?: string; id?: string }>
   getLightningSendRequest(id: string): Promise<{ paymentPreimage?: string; status?: string } | null>
-  createLightningInvoice(params: { amountSats: number; memo: string; expirySeconds: number }): Promise<{ invoice: { encodedInvoice: string } }>
+  createLightningInvoice(params: { amountSats: number; memo: string; expirySeconds: number, includeSparkInvoice: boolean }): Promise<{ invoice: { encodedInvoice: string } }>
   cleanupConnections(): Promise<void>
 }
 

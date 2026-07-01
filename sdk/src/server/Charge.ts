@@ -71,7 +71,7 @@ export function charge(parameters: charge.Parameters) {
       const { invoice: inv } = await wallet.createLightningInvoice({
         amountSats,
         memo: request.description ?? '',
-        includeSparkInvoice,
+        includeSparkInvoice: true,
       })
 
       return {

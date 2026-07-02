@@ -44,6 +44,7 @@ export declare function charge(parameters: charge.Parameters): {
         }, import("zod/v4/core").$strip>;
     };
 } & {
+    canHandleChallenge?: Method.CanHandleChallengeFn | undefined;
     context?: undefined;
     createCredential: Method.CreateCredentialFn<{
         readonly intent: "charge";

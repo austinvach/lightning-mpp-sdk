@@ -40,13 +40,7 @@ export declare function charge(parameters: charge.Parameters): Method.Server<{
             }, import("zod/v4/core").$strip>;
         }, import("zod/v4/core").$strip>;
     };
-}, {
-    readonly currency: "sat";
-    readonly methodDetails: {
-        readonly invoice: "";
-        readonly paymentHash: "";
-    };
-}, undefined>;
+}, {}, undefined, {}, undefined>;
 export declare namespace charge {
     type Parameters = {
         /** BIP39 mnemonic for the receiving Spark wallet. */

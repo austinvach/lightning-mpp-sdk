@@ -59,12 +59,23 @@ export function session(parameters: session.Parameters) {
   const {
     mnemonic,
     network = 'mainnet',
-    store = Store.memory(),
+    store: storeParam = Store.memory(),
     includeSparkInvoice = true,
     unitType,
     depositAmount: configuredDepositAmount,
     idleTimeout: idleTimeoutSecs = 300,
   } = parameters
+
+  // mppx 0.4+ typed Store.get()/put() with a per-key `itemMap` generic instead
+  // of the legacy per-call value generic. This session store holds mixed value
+  // types (SessionState for session keys, boolean markers for consumed-preimage
+  // keys), so we alias it to the legacy value-generic shape to keep the dynamic
+  // get<SessionState>()/put() calls below type-safe without per-site casts.
+  const store = storeParam as unknown as {
+    get: <T>(key: string) => Promise<T | null>
+    put: (key: string, value: unknown) => Promise<void>
+    delete: (key: string) => Promise<void>
+  }
 
   const idleTimeoutMs = idleTimeoutSecs > 0 ? idleTimeoutSecs * 1000 : 0
 
@@ -578,7 +589,11 @@ export function session(parameters: session.Parameters) {
     })
   }
 
-  return Object.assign(method, { deduct, waitForTopUp, serve })
+  return Object.assign(method, { deduct, waitForTopUp, serve }) as Method.Server<typeof Methods.session> & {
+    deduct: typeof deduct
+    waitForTopUp: typeof waitForTopUp
+    serve: typeof serve
+  }
 }
 
 export declare namespace session {

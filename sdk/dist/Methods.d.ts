@@ -20,11 +20,8 @@ export declare const charge: {
             currency: z.ZodMiniOptional<z.ZodMiniString<string>>;
             description: z.ZodMiniOptional<z.ZodMiniString<string>>;
             methodDetails: z.ZodMiniObject<{
-                /** Full BOLT11-encoded payment request. Authoritative source for payment parameters. */
                 invoice: z.ZodMiniString<string>;
-                /** SHA-256 hash of the preimage, lowercase hex. Convenience field — MUST match invoice. */
                 paymentHash: z.ZodMiniOptional<z.ZodMiniString<string>>;
-                /** Lightning Network identifier. Convenience field — MUST match invoice's network prefix. */
                 network: z.ZodMiniOptional<z.ZodMiniString<string>>;
             }, z.core.$strip>;
         }, z.core.$strip>;
@@ -61,54 +58,30 @@ export declare const session: {
         readonly credential: {
             readonly payload: z.ZodMiniDiscriminatedUnion<[z.ZodMiniObject<{
                 action: z.ZodMiniLiteral<"open">;
-                /** sha256-preimage proving the deposit invoice was paid. */
                 preimage: z.ZodMiniString<string>;
-                /** 0-amount BOLT11 invoice — server pays unspent balance to this on close. */
                 returnInvoice: z.ZodMiniString<string>;
             }, z.core.$strip>, z.ZodMiniObject<{
                 action: z.ZodMiniLiteral<"bearer">;
-                /** paymentHash of the original deposit invoice, identifies the session. */
                 sessionId: z.ZodMiniString<string>;
-                /** Same preimage as open — bearer secret proving session ownership. */
                 preimage: z.ZodMiniString<string>;
             }, z.core.$strip>, z.ZodMiniObject<{
                 action: z.ZodMiniLiteral<"topUp">;
-                /** paymentHash of the original deposit invoice, identifies the session. */
                 sessionId: z.ZodMiniString<string>;
-                /** Preimage of the top-up invoice — proves the top-up payment was made. */
                 topUpPreimage: z.ZodMiniString<string>;
             }, z.core.$strip>, z.ZodMiniObject<{
                 action: z.ZodMiniLiteral<"close">;
-                /** paymentHash of the original deposit invoice, identifies the session. */
                 sessionId: z.ZodMiniString<string>;
-                /** Same preimage as open — bearer secret proving session ownership. */
                 preimage: z.ZodMiniString<string>;
             }, z.core.$strip>], "action">;
         };
         readonly request: z.ZodMiniObject<{
-            /** Cost per unit of service in satoshis. */
             amount: z.ZodMiniString<string>;
             currency: z.ZodMiniString<string>;
             description: z.ZodMiniOptional<z.ZodMiniString<string>>;
-            /** Optional label for the unit being priced (e.g., "token", "chunk"). */
             unitType: z.ZodMiniOptional<z.ZodMiniString<string>>;
-            /**
-             * BOLT11 deposit invoice. Present on open/topUp challenges; absent on bearer/close challenges
-             * where no payment is required (spec §6 depositInvoice field).
-             */
             depositInvoice: z.ZodMiniOptional<z.ZodMiniString<string>>;
-            /** sha256 hash of the deposit invoice preimage. Used to verify open/topUp credentials. */
             paymentHash: z.ZodMiniString<string>;
-            /**
-             * Deposit amount in satoshis. Always equals the amount encoded in depositInvoice.
-             * Informs the client of the exact deposit size before it inspects the invoice.
-             */
             depositAmount: z.ZodMiniOptional<z.ZodMiniString<string>>;
-            /**
-             * Server's idle timeout policy in seconds. When present, informs the client
-             * how long the server will retain an open session without activity before
-             * initiating a server-side close and refund. Informational only.
-             */
             idleTimeout: z.ZodMiniOptional<z.ZodMiniString<string>>;
         }, z.core.$strip>;
     };

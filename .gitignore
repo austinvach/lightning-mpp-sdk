@@ -29,3 +29,9 @@ npm-debug.log*
 
 # Copied from root at publish time
 sdk/README.md
+
+# Ship the built SDK output so git-based installs (consumed via a `github:`
+# dependency) work without running a build. Overrides the dist/, *.js and
+# *.js.map ignores above for this path only.
+!sdk/dist/
+!sdk/dist/**
